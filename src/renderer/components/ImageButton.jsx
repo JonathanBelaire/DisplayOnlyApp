@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import icon from '../../../assets/icon.png';
+import icon from '../../../assets/DisplayOnlyTv_2.gif';
 
 
 
@@ -10,12 +10,22 @@ export default function ImageButton(props) {
   var self = this;
 
   function toggleFeature(){
-    console.log("test");
+    if(props.toggleFeature){
+      props.toggleFeature();
+      console.log("toggle called");
+    }
   }
 
+  var inlineStyle = {
+    backgroundImage: `url(${props.image})`,
+    width:props.width,
+    height:props.height
+  };
+
   return (
-    <div onClick={() => {toggleFeature()}}>
-      <img src={icon} width={props.width} height={props.height}/>
+    <div className='image-button-wrapper' style={inlineStyle}  >
+      <div onClick={() => {toggleFeature()}} >
+      </div>
     </div>
   );
 }

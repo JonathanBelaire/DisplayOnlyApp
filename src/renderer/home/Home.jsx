@@ -5,6 +5,10 @@ import { useState } from 'react';
 import Game from '../game/Game';
 import ImageButton from '../components/ImageButton';
 
+import venmoGif from '../../../assets/DisplayOnly_Venmo.gif';
+import socialGif from '../../../assets/DisplayOnly_Social.gif';
+import backgroundGif from '../../../assets/DisplayOnly_Social.gif';
+
 
 
 export default function Home() {
@@ -14,23 +18,17 @@ export default function Home() {
     setTest(!test);
   }
 
+  var style = {
+    backgroundImage: `url(${backgroundGif})`
+  }
+
   return (
-    <div>
-      <div className="display-only-header">
-        <h1>Display Only</h1>
+    <div style={style} className="home-wrapper"  >
 
-      </div>
-      <div className="Hello">
-          <ImageButton width="300" height="300" />
-          <span role="img" aria-label="books">
-            Social
-          </span>
+      <div className="tv-wrapper">
 
-          <ImageButton width="300" height="300"/>
-
-          <span role="img" aria-label="folded hands">
-            Venmo
-          </span>
+          <ImageButton text="Venmo" image={venmoGif}/>
+          <ImageButton text="Social" image={socialGif}/>
 
       </div>
       <div hidden={test}>
