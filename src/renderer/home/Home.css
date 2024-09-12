@@ -2,18 +2,27 @@
   display: inline-block;
   background-repeat: no-repeat;
   background-size: 100%;
-  width: 300px;
-  height: 300px;
+  width: 450px;
+  height: 450px;
   background-position: center;
 
+}
+
+.image-button{
+  width: 450px;
+  height: 450px;
+
+  /* -webkit-filter: drop-shadow(4px 4px 0 white) drop-shadow(-4px -4px 0 white);
+  filter: drop-shadow(4px 4px 0 white) drop-shadow(-4px -4px 0 white); */
 }
 
 .tv-wrapper{
   width: 100%;
   height: 100%;
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
 
 }
 

@@ -1,31 +1,40 @@
 import { useState } from 'react';
-import icon from '../../../assets/DisplayOnlyTv_2.gif';
+
 
 
 
 
 export default function ImageButton(props) {
-  const [test, setTest] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   var self = this;
 
   function toggleFeature(){
-    if(props.toggleFeature){
-      props.toggleFeature();
-      console.log("toggle called");
-    }
+    setShowQRCode(!showQRCode);
+  }
+  var baseStyle={
+    width:props.width,
+    height:props.height,
+    zIndex: 100,
+    position: "absolute",
   }
 
-  var inlineStyle = {
-    backgroundImage: `url(${props.image})`,
-    width:props.width,
-    height:props.height
+  var displayStyle = {
+    ...baseStyle,
+    visibility: !showQRCode ? "visible" : "hidden"
   };
 
+  var qrStyle = {
+    ...baseStyle,
+    visibility: showQRCode ? "visible" : "hidden"
+  };
+
+
+
   return (
-    <div className='image-button-wrapper' style={inlineStyle}  >
-      <div onClick={() => {toggleFeature()}} >
-      </div>
+    <div onClick={() => {toggleFeature()}} class="image-button-wrapper" >
+      <img className="display-image image-button" src={props.image} style={displayStyle} />
+      <img className="active-image image-button" src={props.activeImage} style={qrStyle} />
     </div>
   );
 }
