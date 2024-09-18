@@ -31,7 +31,7 @@ export default function Home() {
       <div className="tv-wrapper">
 
           <ImageButton text="Venmo" width="450" height="450" showQRCode={false} image={venmoGif} activeImage={venmoQRGif}/>
-          <ImageButton text="Social" width="450" height="450" showQRCode={false} activeImage={socialQRGif}/>
+          <ImageButton text="Social" width="450" height="450" showQRCode={false} image={socialGif} activeImage={socialQRGif}/>
 
       </div>
       <div hidden={test}>

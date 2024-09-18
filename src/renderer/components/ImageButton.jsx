@@ -21,14 +21,13 @@ export default function ImageButton(props) {
 
   var displayStyle = {
     ...baseStyle,
-    visibility: !showQRCode ? "visible" : "hidden"
+    opacity: !showQRCode ? 1 : 0
   };
 
   var qrStyle = {
     ...baseStyle,
-    visibility: showQRCode ? "visible" : "hidden"
+    opacity: showQRCode ? 1 : 0
   };
-
 
 
   return (
