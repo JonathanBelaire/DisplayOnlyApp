@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 
@@ -6,8 +6,13 @@ import { useState } from 'react';
 
 export default function ImageButton(props) {
   const [showQRCode, setShowQRCode] = useState(false);
+  const [opacityFloor, setOpacityFloor] = useState(.1);
+
+  setTimeout(() => {setOpacityFloor(0)}, 250);
 
   var self = this;
+
+  console.log(opacityFloor);
 
   function toggleFeature(){
     setShowQRCode(!showQRCode);
@@ -21,12 +26,12 @@ export default function ImageButton(props) {
 
   var displayStyle = {
     ...baseStyle,
-    opacity: !showQRCode ? 1 : 0
+    opacity: !showQRCode ? 1 : opacityFloor
   };
 
   var qrStyle = {
     ...baseStyle,
-    opacity: showQRCode ? 1 : 0
+    opacity: showQRCode ? 1 : opacityFloor
   };
 
 

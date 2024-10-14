@@ -1,6 +1,10 @@
-class GameManager{
+import {GameObject, PhysicsObject} from './game_objects/GameObjects';
+import {BaseState} from './states/States';
+
+
+export class GameManager{
   constructor(props){
-    this.gameObjects = [];
+    this.gameObjects = props.gameObjects;
 
   }
 
@@ -19,8 +23,11 @@ class GameManager{
   }
 
   render(ctx){
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     this.gameObjects.forEach(go => {
       go.render(ctx);
-    })
+    });
+    console.log(this.gameObjects);
   }
 }

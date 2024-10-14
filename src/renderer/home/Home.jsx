@@ -11,32 +11,27 @@ import backgroundGif from '../../../assets/DisplayOnly_Background.gif';
 
 import venmoQRGif from '../../../assets/DisplayOnly_Venmo_QR.gif';
 import socialQRGif from '../../../assets/DisplayOnly_Social_QR.gif';
+import CanvasView from '../components/CanvasView';
+
+
 
 
 
 export default function Home() {
   const [test, setTest] = useState(false);
 
+
+
   function toggleTest(){
     setTest(!test);
   }
 
-  var style = {
-    backgroundImage: `url(${backgroundGif})`
-  }
+
 
   return (
-    <div style={style} className="home-wrapper"  >
+    <div >
+      <CanvasView width={1000} height={700}></CanvasView>
 
-      <div className="tv-wrapper">
-
-          <ImageButton text="Venmo" width="450" height="450" showQRCode={false} image={venmoGif} activeImage={venmoQRGif}/>
-          <ImageButton text="Social" width="450" height="450" showQRCode={false} image={socialGif} activeImage={socialQRGif}/>
-
-      </div>
-      <div hidden={test}>
-
-      </div>
     </div>
   );
 }
