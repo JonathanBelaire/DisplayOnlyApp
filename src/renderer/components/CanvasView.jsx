@@ -31,7 +31,6 @@ class CanvasView extends React.Component {
   }
 
   tick(){
-    console.log(this.canvasRef);
     this.setState({
       frame: this.frame + 1
     });
@@ -40,7 +39,6 @@ class CanvasView extends React.Component {
   refreshCanvas(){
     this.state.canvas = this.canvasRef.current;
     this.state.context = this.state.canvas.getContext('2d');
-    console.log(this.context);
   }
 
   initializeGameEngine(props){
@@ -85,8 +83,6 @@ class CanvasView extends React.Component {
 
     let gameManager =  new GameManager({gameObjects});
     gameManager.initialize();
-
-    console.log({gameManager});
 
     this.state = {
       gameManager: gameManager,
