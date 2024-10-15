@@ -12,7 +12,6 @@ export default function ImageButton(props) {
 
   var self = this;
 
-  console.log(opacityFloor);
 
   function toggleFeature(){
     setShowQRCode(!showQRCode);

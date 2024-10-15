@@ -2,7 +2,13 @@ import { useEffect, createRef, useState } from 'react';
 import { GameManager } from'../game_logic/GameManager';
 import { GameObject, PhysicsObject, Circle } from'../game_logic/game_objects/GameObjects';
 import React from 'react';
+import { GameEngine } from '../game_logic/GameEngine';
+import { Vector2 } from '../game_logic/utility/Physics';
 
+
+function getRandomNumber(max) {
+  return Math.abs(Math.random() * max) * 1.0;
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -31,6 +37,7 @@ class CanvasView extends React.Component {
   }
 
   tick(){
+    this.state.gameEngine.update(this.state.context)
     this.setState({
       frame: this.frame + 1
     });
@@ -39,6 +46,7 @@ class CanvasView extends React.Component {
   refreshCanvas(){
     this.state.canvas = this.canvasRef.current;
     this.state.context = this.state.canvas.getContext('2d');
+
   }
 
   initializeGameEngine(props){
@@ -46,13 +54,7 @@ class CanvasView extends React.Component {
       renderPriority: 1
     };
 
-    const state = {
-      color: "#ffc600",
-      width: 400,
-      height: 400,
-      brushRadius: 10,
-      lazyRadius: 12
-    };
+    var gameEngine = new GameEngine( props.width, props.height);
 
 
     const colors = ["#010101", "#015701", "#610101", "#820101", "#A30101", "#CCCF01"];
@@ -63,12 +65,9 @@ class CanvasView extends React.Component {
     while(i < 10){
       var strokeColor = colors[getRandomInt(colors.length)];
       var color = colors[getRandomInt(colors.length)];
-      var position = {
-        x: getRandomInt(500)+50,
-        y: getRandomInt(500)+50
-      };
+      var position = new Vector2(getRandomNumber(props.width)+10.0,getRandomNumber(props.height)-20.0);
 
-      var radius = getRandomInt(70) + 20;
+      var radius = getRandomNumber(40) + 20;
 
       gameObjects.push(new Circle({
         ...gameObjectData,
@@ -77,15 +76,12 @@ class CanvasView extends React.Component {
         radius,
         position
       }));
-
       i++;
     }
-
-    let gameManager =  new GameManager({gameObjects});
-    gameManager.initialize();
+    gameEngine.addGameObjects(gameObjects);
 
     this.state = {
-      gameManager: gameManager,
+      gameEngine: gameEngine,
       frame: 0,
       context: null
     };
@@ -95,8 +91,8 @@ class CanvasView extends React.Component {
 
   render(){
     if(this.state.gameManager && this.state.context != null){
-      this.state.gameManager.update();
-      this.state.gameManager.render(this.state.context);
+      this.state.gameEngine.update();
+      this.state.gameEngine.render(this.state.context);
     }
 
     return (
