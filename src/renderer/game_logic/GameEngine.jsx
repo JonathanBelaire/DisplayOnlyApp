@@ -1,4 +1,4 @@
-import { PhysicsEngine } from "./utility/Physics";
+import { PhysicsEngine, Vector2 } from "./utility/Physics";
 
 export class GameEngine{
   constructor(width, height){
@@ -10,14 +10,40 @@ export class GameEngine{
       width,
       height
     });
+    this.initialized = false;
 
   }
 
   update(context){
+    var self = this;
+
+    this.processInput(context.canvas);
     this.physicsUpdate();
     this.frameUpdate();
     this.render(context);
   }
+
+  processInput(canvas){
+    var self = this;
+    if(!this.initialized){
+      console.log({canvas});
+      canvas.addEventListener('click', function(event) {
+        console.log({event});
+        self.clickPosition = new Vector2(event.offsetX, event.offsetY);
+
+      }, false);
+      this.initialized = true;
+    }
+    if(this.clickPosition != null){
+      console.log(this.clickPosition);
+      this.physicsEngine.raycast(self.clickPosition);
+      this.clickPosition = null;
+    }
+
+
+
+  }
+
 
   frameUpdate(){
     this.gameObjects.forEach((go) => {
@@ -50,6 +76,9 @@ export class GameEngine{
   addGameObjects(objs = []){
     objs.forEach((o) => {
       this.gameObjects.push(o);
+      o.setInputListener((go) => {
+        go.setRadius( go.radius + 2);
+      })
       this.physicsEngine.addGameObject(o);
     })
     this.sortGameObjects();

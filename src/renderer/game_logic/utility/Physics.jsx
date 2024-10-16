@@ -1,3 +1,5 @@
+import { Circle } from "../game_objects/GameObjects";
+
 export class Vector2 {
   constructor(x, y){
 
@@ -36,8 +38,17 @@ export class PhysicsEngine {
       left: 0.0
     };
     this.collisions = [];
-    this.gravity = 9.8;
+    this.gravity = 98;
     this.simulationSpeed = 2;
+    this.raycastCircle = new Circle(
+      {
+        color: "black",
+        strokeColor: "black",
+        position: new Vector2(0,0),
+        radius: 1
+      }
+    );
+    this.raycastCircle.active = false;
 
   }
 
@@ -58,6 +69,18 @@ export class PhysicsEngine {
     objs.forEach((o) => {
       this.gameObjects.push(o);
     })
+  }
+
+  raycast(vector){
+    this.raycastCircle.setPosition(vector);
+    var objects = []
+    this.gameObjects.forEach((go) => {
+      if(go.collide(this.raycastCircle) ){
+        go.onInput();
+      }
+    });
+
+    return objects;
   }
 
 

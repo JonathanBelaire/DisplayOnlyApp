@@ -2,8 +2,11 @@ import { StateMachine, GameStates, StateEnum, States } from "../states/States";
 import { CircleCollider, PhysicsEngine, Vector2, Collider } from "../utility/Physics";
 
 export class GameObject{
+
+  onInput = () => {};
   constructor(props){
     var self = this;
+    this.mass = 1;
     this.id = Math.random().toString(16).slice(2);
     this.active = true;
     this.renderPriority = props.renderPriority;
@@ -30,6 +33,19 @@ export class GameObject{
     return this.transform.position;
   }
 
+  setPosition(position){
+    this.transform.position = position;
+  }
+
+  setInputListener(func){
+    var self = this;
+    this.onInput = () => {
+      func(self);
+    }
+  }
+
+
+
   physicsUpdate(physicsEngine){
     var timestamp = Date.now();
     if(this.lastFrameTimestamp == null){
@@ -54,10 +70,10 @@ export class GameObject{
         var directionX = this.transform.position.x - co.gameObject2.transform.position.x;
         var directionY = this.transform.position.y - co.gameObject2.transform.position.y;
 
-
+        var deltaMass = co.gameObject2.mass - this.mass;
 
         var bounceDirection = (new Vector2(directionX, directionY)).unit();
-        var speed = this.velocity.magnitude();
+        var speed = this.velocity.magnitude() + co.gameObject2.mass * 0.01;
 
         this.velocity = bounceDirection.multiply(speed);
 
@@ -122,6 +138,7 @@ export class Circle extends GameObject{
     super(props);
     this.radius = props.radius;
     this.collider = new CircleCollider(this, this.radius);
+    this.mass = this.radius;
     this.stateMachine = new StateMachine({
       gameObject: this,
       startingState: States.getState(StateEnum.Alive)
@@ -131,6 +148,13 @@ export class Circle extends GameObject{
   physicsUpdate(physicsEngine){
     super.physicsUpdate(physicsEngine);
   }
+
+  setRadius(radius){
+    this.collider.radius = radius;
+    this.radius = radius;
+
+  }
+
   update(){
     super.update();
   }
