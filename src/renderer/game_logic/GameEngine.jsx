@@ -40,8 +40,14 @@ export class GameEngine{
       this.clickPosition = null;
     }
 
+  }
 
+  beforeRender(){
 
+  }
+
+  afterRender(){
+    
   }
 
 

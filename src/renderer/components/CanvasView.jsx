@@ -1,6 +1,6 @@
 import { useEffect, createRef, useState } from 'react';
 import { GameManager } from'../game_logic/GameManager';
-import { GameObject, PhysicsObject, Circle } from'../game_logic/game_objects/GameObjects';
+import { GameObject, PhysicsObject, Circle, Ball } from'../game_logic/game_objects/GameObjects';
 import React from 'react';
 import { GameEngine } from '../game_logic/GameEngine';
 import { Vector2 } from '../game_logic/utility/Physics';
@@ -12,6 +12,11 @@ function getRandomNumber(max) {
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
+}
+
+function getRandomColor(){
+  var colorInt = Math.floor(Math.random() * 16777215);
+  return "#"+colorInt.toString(16);
 }
 
 
@@ -62,20 +67,32 @@ class CanvasView extends React.Component {
     let gameObjects = [];
     let i = 0;
 
-    while(i < 10){
-      var strokeColor = colors[getRandomInt(colors.length)];
-      var color = colors[getRandomInt(colors.length)];
+    var numberOfBalls = 10
+
+    while(i < numberOfBalls){
+      // var strokeColor = colors[getRandomInt(colors.length)];
+      // var color = colors[getRandomInt(colors.length)];
+
+      var strokeColor = getRandomColor();
+      var color = getRandomColor();
+
+
+
       var position = new Vector2(getRandomNumber(props.width)+10.0,getRandomNumber(props.height)-20.0);
 
       var radius = getRandomNumber(40) + 20;
 
-      gameObjects.push(new Circle({
+      gameObjects.push(new Ball({
         ...gameObjectData,
         strokeColor,
+        bounce: 0.88,
+        friction: 1,
         color,
         radius,
-        position
+        position,
+        gravityEnabled: true
       }));
+
       i++;
     }
     gameEngine.addGameObjects(gameObjects);
@@ -106,3 +123,4 @@ class CanvasView extends React.Component {
 }
 
 export default CanvasView;
+
