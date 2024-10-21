@@ -26,16 +26,14 @@ export class GameEngine{
   processInput(canvas){
     var self = this;
     if(!this.initialized){
-      console.log({canvas});
       canvas.addEventListener('click', function(event) {
-        console.log({event});
         self.clickPosition = new Vector2(event.offsetX, event.offsetY);
 
       }, false);
       this.initialized = true;
     }
     if(this.clickPosition != null){
-      console.log(this.clickPosition);
+
       this.physicsEngine.raycast(self.clickPosition);
       this.clickPosition = null;
     }
@@ -47,7 +45,7 @@ export class GameEngine{
   }
 
   afterRender(){
-    
+
   }
 
 
@@ -77,14 +75,13 @@ export class GameEngine{
       this.gameObjects.push(obj);
       this.sortGameObjects();
     }
+    this.physicsEngine.addGameObject(obj);
   }
 
   addGameObjects(objs = []){
     objs.forEach((o) => {
       this.gameObjects.push(o);
-      o.setInputListener((go) => {
-        go.setRadius( go.radius + 2);
-      })
+
       this.physicsEngine.addGameObject(o);
     })
     this.sortGameObjects();

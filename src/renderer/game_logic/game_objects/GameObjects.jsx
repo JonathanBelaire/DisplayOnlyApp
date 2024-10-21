@@ -63,9 +63,6 @@ export class GameObject{
   }
 
   applyForce(physicsEngine){
-
-    //this.velocity = this.velocity.add(this.velocityChange.multiply(physicsEngine.deltaTime));
-
     let vX = this.velocity.x;
     let vY = this.velocity.y;
 
@@ -77,9 +74,6 @@ export class GameObject{
 
     this.appliedForce = Vector2.zero;
     this.velocityChange = Vector2.zero;
-
-    //console.log(Vector2.zero);
-
   }
 
 
@@ -145,8 +139,8 @@ export class GameObject{
 
 
   physicsUpdate(physicsEngine){
-    this.checkForBoundaries(physicsEngine);
     this.applyForce(physicsEngine);
+    this.checkForBoundaries(physicsEngine);
 
 
     var positionX = this.transform.position.x + (this.velocity.x * physicsEngine.simulationSpeed * physicsEngine.deltaTime);

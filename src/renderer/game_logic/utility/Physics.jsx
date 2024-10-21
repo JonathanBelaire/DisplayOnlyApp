@@ -23,7 +23,7 @@ export class Vector2 {
   }
 
   dotProduct(vector){
-    return this.x * vector.x + this.y * vector.y;
+    return (this.x * vector.x) + (this.y * vector.y);
   }
 
   crossProduct(vector){
@@ -33,9 +33,6 @@ export class Vector2 {
     var angle = Math.acos(this.dotProduct(vector)/(this.magnitude() * vector.magnitude));
 
     return magA * magB * Math.sin(angle);
-
-
-
   }
 
   distance(vector){
@@ -94,7 +91,6 @@ export class PhysicsEngine {
       this.lastTimestamp = Date.now() - 17;
     }
     this.deltaTime = (Date.now() - this.lastTimestamp) * .001;
-    console.log(this.deltaTime);
     this.detectCollisions();
 
     this.gameObjects.forEach((go) =>{
