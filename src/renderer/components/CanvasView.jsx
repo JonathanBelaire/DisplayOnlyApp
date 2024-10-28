@@ -2,8 +2,8 @@ import { useEffect, createRef, useState } from 'react';
 import { GameObject, PhysicsObject, Circle, Ball } from'../game_logic/game_objects/GameObjects';
 import React from 'react';
 import { GameEngine } from '../game_logic/GameEngine';
-import { Vector2 } from '../game_logic/utility/Physics';
-import { BouncyBalls } from '../game_logic/gameplay/GameplayManager';
+import { Vector2 } from '../game_logic/physics/Physics';
+import { BouncyBalls, FlappyOnly } from '../game_logic/gameplay/GameplayManager';
 
 
 class CanvasView extends React.Component {
@@ -28,7 +28,7 @@ class CanvasView extends React.Component {
   }
 
   tick(){
-    this.state.game.update(this.state.context)
+    this.state.game.update()
     this.setState({
       frame: this.frame + 1
     });
@@ -37,11 +37,12 @@ class CanvasView extends React.Component {
   refreshCanvas(){
     this.state.canvas = this.canvasRef.current;
     this.state.context = this.state.canvas.getContext('2d');
+    this.state.game.setRenderContext(this.state.context);
 
   }
 
   initializeGameEngine(props){
-    var game = new BouncyBalls( {width:props.width, height:props.height});
+    var game = new FlappyOnly( {width:props.width, height:props.height});
 
     this.state = {
       game: game,

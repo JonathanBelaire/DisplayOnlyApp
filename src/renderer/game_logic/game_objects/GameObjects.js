@@ -1,13 +1,14 @@
 import { EventListener } from "../events/EventListener";
 import { StateMachine, GameStates, StateEnum, States } from "../states/States";
-import { CircleCollider, PhysicsEngine, Vector2, Collider } from "../utility/Physics";
+import { PhysicsEngine, Vector2 } from "../physics/Physics";
+import { Collider, CircleCollider } from "../physics/Colliders";
 
 export class GameObject{
 
   onInput = () => {};
 
   mass = 1;
-  appliedForce = null;
+  appliedForce = new Vector2();
   active = true;
   renderPriority;
   bounce;
@@ -16,11 +17,16 @@ export class GameObject{
   color;
   strokeColor;
   velocity = new Vector2(0,0);
+  physicsEnabled = true;
   transform = {
     position: new Vector2(0, 0),
     rotation: 0,
     size: new Vector2(1, 1)
   };
+
+  lockX = false;
+  lockY = false;
+
 
   collider;
   stateMachine;
@@ -35,6 +41,7 @@ export class GameObject{
     this.renderPriority = props.renderPriority;
     this.bounce = props.bounce;
     this.img = props.img;
+    this.physicsEnabled = props.physicsEnabled;
     this.drag = 0.6;
     this.color = props.color;
     this.strokeColor = props.strokeColor;
@@ -55,6 +62,10 @@ export class GameObject{
 
   }
 
+  addImpulse(vector){
+    this.velocity = vector;
+  }
+
   addForce(vector){
     if(this.appliedForce == null){
       this.appliedForce = Vector2.zero.multiply(1);
@@ -66,14 +77,14 @@ export class GameObject{
     let vX = this.velocity.x;
     let vY = this.velocity.y;
 
-    vX = vX + this.appliedForce.x * physicsEngine.deltaTime ;
+    vX = vX + this.appliedForce.x * physicsEngine.deltaTime;
     vY = vY + this.appliedForce.y * physicsEngine.deltaTime ;
 
     this.velocity = new Vector2(vX, vY);
     this.velocity = this.velocity.add(this.velocityChange.multiply(2));
 
-    this.appliedForce = Vector2.zero;
-    this.velocityChange = Vector2.zero;
+    this.appliedForce = new Vector2();
+    this.velocityChange = new Vector2();
   }
 
 
@@ -111,9 +122,6 @@ export class GameObject{
         var midPoint = co.midPoint;
         var unitVelocity = relativeVelocity.unit();
 
-
-
-
         var massFactor =  (co.gameObject2.mass/(this.mass +co.gameObject2.mass));
         var bounceVelocity = midPoint.unit().multiply( this.velocity.magnitude()  * massFactor );
 
@@ -142,9 +150,22 @@ export class GameObject{
     this.applyForce(physicsEngine);
     this.checkForBoundaries(physicsEngine);
 
+    var positionX, positionY;
+    if(this.lockX){
+      positionX = this.getPosition().x;
+    }else{
 
-    var positionX = this.transform.position.x + (this.velocity.x * physicsEngine.simulationSpeed * physicsEngine.deltaTime);
-    var positionY = this.transform.position.y + (this.velocity.y * physicsEngine.simulationSpeed * physicsEngine.deltaTime);
+      positionX = this.transform.position.x + (this.velocity.x * physicsEngine.simulationSpeed * physicsEngine.deltaTime);
+    }
+
+    if(this.lockY){
+      positionY = this.getPosition().y;
+    }
+    else{
+      positionY = this.transform.position.y + (this.velocity.y * physicsEngine.simulationSpeed * physicsEngine.deltaTime);
+
+    }
+
 
     this.transform.position = new Vector2 (positionX, positionY);
 
@@ -177,7 +198,7 @@ export class GameObject{
   }
 
   update(){
-    this.stateMachine.update();
+    //this.stateMachine.update();
   }
 
   render(ctx){
@@ -194,10 +215,10 @@ export class Circle extends GameObject{
     this.radius = props.radius;
     this.collider = new CircleCollider(this, this.radius);
     this.mass = this.radius;
-    this.stateMachine = new StateMachine({
-      gameObject: this,
-      startingState: States.getState(StateEnum.Alive)
-    })
+    // this.stateMachine = new StateMachine({
+    //   gameObject: this,
+    //   startingState: States.getState(StateEnum.Alive)
+    // })
   }
 
   physicsUpdate(physicsEngine){
@@ -237,6 +258,7 @@ export class Circle extends GameObject{
     if(this.active){
 
       ctx.beginPath();
+
       ctx.fillStyle = this.color;
       ctx.strokeStyle = this.strokeColor;
       ctx.arc(this.transform.position.x, this.transform.position.y, this.radius, 0, 2 * Math.PI);

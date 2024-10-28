@@ -21,14 +21,6 @@ export class AliveState extends BaseState{
 
   update(gameObject){
     super.update(gameObject);
-
-    //gameObject.update();
-    //gameObject.draw();
-
-    if(gameObject.health < 1){
-      gameObject.active = false;
-      return States.getState(StateEnum.Dead);
-    }
     return this;
 
   }
@@ -43,9 +35,9 @@ export class DeadState extends BaseState{
   update(gameObject){
     super.update(gameObject);
 
-    if(gameObject.health > 0){
-      return States.getState(StateEnum.Alive);
-    }
+    // if(gameObject.health > 0){
+    //   return States.getState(StateEnum.Alive);
+    // }
 
     return this;
   }
@@ -78,17 +70,17 @@ export const States = {
 
 
 export class StateMachine {
-
+  currentState = null;
+  nextState = null;
   constructor(props){
-    this.gameObject = props.gameObject;
     this.currentState = props.startingState;
     this.nextState = null;
   }
 
-  update(){
-    this.nextState = this.currentState.update(this.gameObject);
+  update(obj){
+    if(this.currentState != null){
+      this.nextState = this.currentState.update(obj);
+    }
     this.currentState = this.nextState;
-
   }
-
 }

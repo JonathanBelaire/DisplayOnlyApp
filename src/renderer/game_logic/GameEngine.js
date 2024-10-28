@@ -1,6 +1,7 @@
-import { PhysicsEngine, Vector2 } from "./utility/Physics";
+import { PhysicsEngine, Vector2 } from "./physics/Physics";
 
 export class GameEngine{
+  uiDrawer = null;
   constructor(width, height){
     this.gameObjects = [];
     this.width = width;
@@ -10,17 +11,21 @@ export class GameEngine{
       width,
       height
     });
+
+
     this.initialized = false;
 
   }
 
-  update(context){
+  update(context, callback = () => {}){
     var self = this;
 
     this.processInput(context.canvas);
+    callback();
     this.physicsUpdate();
     this.frameUpdate();
     this.render(context);
+
   }
 
   processInput(canvas){
@@ -28,6 +33,7 @@ export class GameEngine{
     if(!this.initialized){
       canvas.addEventListener('click', function(event) {
         self.clickPosition = new Vector2(event.offsetX, event.offsetY);
+        self.clicked = true;
 
       }, false);
       this.initialized = true;
@@ -36,9 +42,25 @@ export class GameEngine{
 
       this.physicsEngine.raycast(self.clickPosition);
       this.clickPosition = null;
+      this.clicked = false;
     }
 
+
   }
+
+  setGravity(g){
+    this.physicsEngine.gravity = g;
+  }
+
+  setPhysicsSpeed(s){
+    this.physicsEngine.simulationSpeed = s;
+  }
+
+  deltaTime(){
+    return this.physicsEngine.deltaTime;
+  }
+
+
 
   beforeRender(){
 
@@ -64,7 +86,6 @@ export class GameEngine{
     context.clearRect(0,0,this.width, this.height);
     context.fillStyle = "#00002F";
     context.fillRect(0,0,this.width, this.height);
-    //context.fillRect(0,0,this.width, this.height);
     this.gameObjects.forEach((go) => {
       go.render(context);
     });
@@ -85,6 +106,23 @@ export class GameEngine{
       this.physicsEngine.addGameObject(o);
     })
     this.sortGameObjects();
+  }
+
+  removeGameObject(o){
+    this.physicsEngine.removeGameObject(o);
+    this.gameObjects = this.gameObjects.filter((go) => {
+      return go.id != o.id;
+    })
+  }
+
+  removeGameObjects(objects){
+    this.physicsEngine.removeGameObjects(objects);
+    var ids = objects.map((v) => {
+      return v.id;
+    })
+    this.gameObjects = this.gameObjects.filter((go) => {
+      return !ids.includes(go.id);
+    })
   }
 
 
