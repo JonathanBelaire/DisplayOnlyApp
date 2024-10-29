@@ -12,7 +12,7 @@ export class GameObject{
   appliedImpulse = new Vector2();
   active = true;
   renderPriority;
-  bounce;
+  bounce = 0.9;
   drag;
   img;
   color;
@@ -36,6 +36,7 @@ export class GameObject{
   inputListener;
   velocityChange = new Vector2(0,0);
   ignoreBoundaries = false;
+  collisionsEnabled = true;
 
   constructor(props){
     var self = this;
@@ -43,7 +44,11 @@ export class GameObject{
     this.renderPriority = props.renderPriority;
     this.bounce = props.bounce;
     this.img = props.img;
+
     this.physicsEnabled = props.physicsEnabled;
+    this.collisionsEnabled = props.collisionsEnabled;
+    this.gravityEnabled = props.gravityEnabled;
+
     this.drag = 0.6;
     this.color = props.color;
     this.strokeColor = props.strokeColor;
@@ -60,7 +65,6 @@ export class GameObject{
       gameObject :self,
       startingState : props.startingState
     });
-    this.gravityEnabled = props.gravityEnabled ;
 
   }
 
@@ -75,7 +79,7 @@ export class GameObject{
     this.appliedForce = this.appliedForce.add(vector);
   }
 
-  apply
+
 
   applyForce(physicsEngine){
     let vX = this.velocity.x;
@@ -85,7 +89,7 @@ export class GameObject{
     vY = vY + this.appliedForce.y * physicsEngine.deltaTime + this.appliedImpulse.y * physicsEngine.deltaTime * physicsEngine.impulseModifier;
 
     this.velocity = new Vector2(vX, vY);
-    this.velocity = this.velocity.add(this.velocityChange.multiply(2));
+    this.velocity = this.velocity.add(this.velocityChange);
 
     this.appliedForce = new Vector2();
     this.appliedImpulse = new Vector2();
@@ -100,6 +104,7 @@ export class GameObject{
 
   setPosition(position){
     this.transform.position = position;
+    this.collider.updatePosition(this.transform.position);
   }
 
   setInputListener(func){
@@ -108,11 +113,13 @@ export class GameObject{
       func(self);
     }
   }
+  onCollision(physicsEngine, collisions){
+
+  }
 
   detectCollisions(physicsEngine){
     var self = this;
     var collisions = physicsEngine.getCollisionsForGameObject(this);
-
 
     if(collisions.length > 0){
       collisions.forEach((co) => {
@@ -128,13 +135,9 @@ export class GameObject{
         var unitVelocity = relativeVelocity.unit();
 
         var massFactor =  (co.gameObject2.mass/(this.mass +co.gameObject2.mass));
-        var bounceVelocity = midPoint.unit().multiply( this.velocity.magnitude()  * massFactor );
-
+        var bounceVelocity = midPoint.unit().multiply( this.velocity.magnitude() * massFactor );
 
         this.addVelocityChange(bounceVelocity);
-
-
-
       });
     }
     return collisions;
@@ -152,7 +155,7 @@ export class GameObject{
 
 
   physicsUpdate(physicsEngine){
-    this.applyForce(physicsEngine);
+    //this.applyForce(physicsEngine);
     if(!this.ignoreBoundaries){
 
       this.checkForBoundaries(physicsEngine);
@@ -162,7 +165,6 @@ export class GameObject{
     if(this.lockX){
       positionX = this.getPosition().x;
     }else{
-
       positionX = this.transform.position.x + (this.velocity.x * physicsEngine.simulationSpeed * physicsEngine.deltaTime);
     }
 
@@ -175,23 +177,23 @@ export class GameObject{
     }
 
 
-    this.transform.position = new Vector2 (positionX, positionY);
+    this.setPosition( new Vector2 (positionX, positionY));
 
-    this.collider.updatePosition(this.transform.position);
+
 
   }
 
   checkForBoundaries(physicsEngine){
     if((this.transform.position.x > physicsEngine.boundary.right && this.velocity.x > 0) || (this.transform.position.x < physicsEngine.boundary.left && this.velocity.x < 0 )){
       //this.velocity.x = -this.velocity.x;
-      this.addVelocityChange(new Vector2(-this.velocity.x, 0));
+      this.addVelocityChange(new Vector2(-this.velocity.x * this.bounce, 0));
 
     }
 
 
     if(this.transform.position.y >= physicsEngine.boundary.bottom && this.velocity.y > 0){
       //this.velocity.y = -this.velocity.y;
-      this.addVelocityChange(new Vector2(0, -this.velocity.y));
+      this.addVelocityChange(new Vector2(0, -this.velocity.y * this.bounce));
     }
 
   }
@@ -282,6 +284,14 @@ export class Box extends GameObject{
     this.collider = new BoxCollider(this, params.width, params.height);
     this.width = params.width;
     this.height = params.height;
+  }
+
+  render(ctx){
+    ctx.fillStyle = this.color;
+    ctx.strokeStyle = this.strokeColor;
+
+    ctx.strokeRect(this.collider.boundary.topLeft.x, this.collider.boundary.topLeft.y, this.width, this.height);
+    ctx.fillRect(this.collider.boundary.topLeft.x, this.collider.boundary.topLeft.y, this.width, this.height);
   }
 }
 

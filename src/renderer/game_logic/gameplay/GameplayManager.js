@@ -37,12 +37,14 @@ export class FlappyOnly extends GameplayManager{
   xAnchor = 0;
   playerTapped = false;
   playerCollided = false;
+  obstacleVelocity = new Vector2();
 
   gameSettings = {
-    verticalSpacing: 200,
+    jumpSpeed: 120,
+    verticalSpacing: 220,
     horizontalSpacing: 500,
     obstacleWidth: 70,
-    obstacleSpeed : 100.0,
+    obstacleSpeed : 70.0,
     verticalPadding: 50
   }
 
@@ -57,65 +59,114 @@ export class FlappyOnly extends GameplayManager{
 
     this.xAnchor = config.width * 0.5;
     this.renderContext = config.renderContext;
-    this.numberOfObstacles = Math.floor(config.width/(this.gameSettings.obstacleWidth + this.gameSettings.horizontalSpacing)) + 1;
+    this.numberOfObstacles = Math.floor(config.width/(this.gameSettings.obstacleWidth + this.gameSettings.horizontalSpacing)) + 2;
 
 
-
-
-    this.gameEngine.setGravity(300);
+    this.canvasHeight = config.height;
+    this.canvasWidth = config.width;
+    this.gameEngine.setGravity(350);
     this.gameEngine.setPhysicsSpeed(5);
+
+    this.obstacleVelocity = new Vector2(-this.gameSettings.obstacleSpeed, 0);
 
     this.reset();
 
 
 
-    this.refreshObstacles();
+    //this.refreshObstacles();
   }
 
   update(){
-    super.update(this.renderContext);
     this.playerTapped = this.gameEngine.clicked;
-    this.playerCollided = this.gameEngine.physicsEngine.hasCollisionOccurred();
-    this.stateMachine.update(this);
+    var collisions = this.gameEngine.physicsEngine.getCollisionsForGameObject(this.player).filter((o) => {
+      return o.gameObject2 instanceof FlappyObstacle;
+    });
 
+    var playerCollided = collisions.length > 0;
+
+    this.playerCollided = playerCollided;
+    this.stateMachine.update(this);
+    super.update(this.renderContext);
+
+  }
+
+  generateNewObstacle(centerPosition){
+    var offset =  (this.gameSettings.verticalSpacing * 0.5);
+
+    var height1 = centerPosition.y - offset;
+    var height2 =  (this.canvasHeight - centerPosition.y) - offset;
+
+    var pos1 = new Vector2(centerPosition.x, height1 * 0.5);
+    var pos2 = new Vector2(centerPosition.x, centerPosition.y + offset + height2 * 0.5);
+
+    var obstacle1 = new FlappyObstacle({
+      position: pos1,
+      width: this.gameSettings.obstacleWidth,
+      height: height1,
+      physicsEnabled: true,
+      gravityEnabled:false,
+      collisionsEnabled: true,
+      velocity: this.obstacleVelocity,
+
+    });
+
+    var obstacle2 = new FlappyObstacle({
+      position: pos2,
+      width: this.gameSettings.obstacleWidth,
+      height: height2,
+      physicsEnabled: true,
+      gravityEnabled:false,
+      collisionsEnabled: true,
+      velocity: this.obstacleVelocity,
+    });
+
+
+    this.obstacles.push(obstacle1);
+    this.obstacles.push(obstacle2);
+    this.gameEngine.addGameObject(obstacle1);
+    this.gameEngine.addGameObject(obstacle2);
 
   }
 
   refreshObstacles(){
-    this.gameEngine.removeGameObjects(this.obstacles);
-    this.obstacles = this.obstacles.filter((o) => {
-      return o.getPosition().x > -20;
+    var self = this;
+
+    //var allObstacles = this.obstacles;
+    var obstaclesToRemove = this.obstacles.filter((o) =>
+      o.getPosition().x < -20
+    );
+
+    var obstacleIdsToRemove = obstaclesToRemove.map((o) => o.id);
+
+    this.obstacles = this.obstacles.filter((o) => !obstacleIdsToRemove.includes(o.id));
+
+    obstaclesToRemove.forEach((o) => {
+      self.gameEngine.removeGameObject(o);
     })
 
-    if(this.obstacles.length < this.numberOfObstacles){
+
+    if(this.obstacles.length < this.numberOfObstacles * 2){
+
       var i = this.obstacles.length;
-      while(i < this.numberOfObstacles){
+      while(i < this.numberOfObstacles * 2){
         var position = new Vector2();
-        if(i == 0){
-          position = new Vector2(this.width+this.gameSettings.obstacleWidth, this.getRandomHeight());
+        if(i < 2){
+          position = new Vector2(this.canvasWidth+this.gameSettings.obstacleWidth, this.getRandomHeight());
         }
         else{
-          var prev = this.obstacles[i -1];
-          position = new Vector2(prev.getPosition().x + this.gameSettings.horizontalSpacing + this.gameSettings.obstacleWidth, this.getRandomHeight());
+          var prev = this.obstacles[i - 1];
+          position = new Vector2(prev.getPosition().x + this.gameSettings.horizontalSpacing + this.gameSettings.obstacleWidth*0.5, this.getRandomHeight());
 
         }
 
-        var obstacle = new FlappyObstacle({
-          position: position,
-          width: this.gameSettings.obstacleWidth,
-          canvasWidth:this.width,
-          velocity: new Vector2(-this.gameSettings.obstacleSpeed, 0.0),
-          canvasHeight: this.height,
-          verticalSpacing: this.gameSettings.verticalSpacing
 
-        });
+        this.generateNewObstacle(position);
 
-        this.obstacles.push(obstacle);
-        i++;
+        i += 2;
       }
     }
 
-    this.gameEngine.addGameObjects(this.obstacles);
+
 
   }
 
@@ -124,11 +175,42 @@ export class FlappyOnly extends GameplayManager{
   }
 
   updateObstacles(){
+    // this.obstacles.forEach((o) => {
+    //   // var pos = o.getPosition();
+    //   // var newPos = new Vector2(pos.x - (this.gameSettings.obstacleSpeed * this.gameEngine.deltaTime()), pos.y);
+    //   // o.setPosition(newPos);
+    // });
+  }
+
+  onStart(){
+    var self = this;
+    this.player.gravityEnabled = true;
+    this.player.physicsEnabled = true;
+    this.player.collisionsEnabled = true;
+    this.player.lockY = false;
     this.obstacles.forEach((o) => {
-      // var pos = o.getPosition();
-      // var newPos = new Vector2(pos.x - (this.gameSettings.obstacleSpeed * this.gameEngine.deltaTime()), pos.y);
-      // o.setPosition(newPos);
+      o.physicsEnabled = true;
+      o.collisionsEnabled = true;
+      o.gravityEnabled = false;
+      o.velocity = new Vector2(-self.gameSettings.obstacleSpeed, 0);
+
     });
+  }
+
+  onGameOver(){
+    this.obstacles.forEach((o) => {
+      o.physicsEnabled = true;
+      //o.gravityEnabled = true;
+
+      o.velocity = new Vector2();
+
+      o.color = "black";
+    });
+
+    this.player.color = "red";
+    this.player.lockY = true;
+    this.player.physicsEnabled = false;
+    this.player.collisionsEnabled = false;
   }
 
   renderObstacles(){
@@ -139,23 +221,32 @@ export class FlappyOnly extends GameplayManager{
   }
 
   reset(){
-    //this.gameEngine = new GameEngine(this.width, this.height);
+    if(this.obstacles.length > 0){
 
-    this.gameEngine.removeGameObjects(this.obstacles);
+      this.gameEngine.removeGameObjects(this.obstacles);
+    }
     if(this.player != null){
       this.gameEngine.removeGameObject(this.player);
     }
     this.obstacles = [];
     var player  = new Bird({
-      gravityEnabled: true,
+      gravityEnabled: false,
+      physicsEnabled: false,
+      renderPriority: 10,
+      radius: 50,
+      collisionsEnabled: true,
       position: new Vector2(this.width*0.5, this.height*0.5),
       velocity: new Vector2(),
-      jumpSpeed: 10
+      jumpSpeed: this.gameSettings.jumpSpeed
     });
 
-    this.player = player;
 
-    this.gameEngine.addGameObjects([player]);
+    this.player = player;
+    this.player.gravityEnabled = false;
+
+    this.player.lockY = true;
+
+    this.gameEngine.addGameObject(player);
 
   }
 

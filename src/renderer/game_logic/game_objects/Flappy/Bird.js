@@ -8,20 +8,20 @@ export class Bird extends Ball{
     super(params);
     this.color = "#AAAAAA";
     this.strokeColor = "#FFFFFF";
-    this.gravityEnabled = true;
+
     this.jumpSpeed = params.jumpSpeed;
     this.active = true;
-    this.bounce = 0.03,
+    this.bounce = 0.9,
     this.renderPriority = 1,
     this.friction = 1,
-    this.radius = 40;
-    this.physicsEnabled = true;
     this.lockX = true;
   }
 
   onJump()
   {
-    this.addImpulse(new Vector2(0,  -this.jumpSpeed));
+    var newVel = new Vector2();
+
+    this.addVelocityChange(new Vector2(0,  -this.velocity.y - this.jumpSpeed));
   }
 
   update(){

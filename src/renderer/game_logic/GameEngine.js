@@ -1,3 +1,4 @@
+import { GameObject } from "./game_objects/GameObjects";
 import { PhysicsEngine, Vector2 } from "./physics/Physics";
 
 export class GameEngine{
@@ -17,14 +18,14 @@ export class GameEngine{
 
   }
 
-  update(context, callback = () => {}){
+  update(context){
     var self = this;
 
     this.processInput(context.canvas);
-    callback();
     this.physicsUpdate();
     this.frameUpdate();
     this.render(context);
+    this.afterRender();
 
   }
 
@@ -38,15 +39,12 @@ export class GameEngine{
       }, false);
       this.initialized = true;
     }
-    if(this.clickPosition != null){
 
-      this.physicsEngine.raycast(self.clickPosition);
-      this.clickPosition = null;
-      this.clicked = false;
-    }
 
 
   }
+
+
 
   setGravity(g){
     this.physicsEngine.gravity = g;
@@ -67,6 +65,11 @@ export class GameEngine{
   }
 
   afterRender(){
+    if(this.clickPosition != null){
+      this.physicsEngine.raycast(this.clickPosition);
+      this.clickPosition = null;
+      this.clicked = false;
+    }
 
   }
 
@@ -92,11 +95,11 @@ export class GameEngine{
   }
 
   addGameObject(obj){
-    if(typeof(obj) == "GameObject"){
+    if(obj instanceof GameObject){
       this.gameObjects.push(obj);
       this.sortGameObjects();
+      this.physicsEngine.addGameObject(obj);
     }
-    this.physicsEngine.addGameObject(obj);
   }
 
   addGameObjects(objs = []){
@@ -129,8 +132,8 @@ export class GameEngine{
 
   sortGameObjects(){
     this.gameObjects = this.gameObjects.sort((a, b) => {
-      if(a.renderPriority < b.renderPriority) return 1;
-      else if(a.renderPriority > b.renderPriority) return -1;
+      if(a.renderPriority < b.renderPriority) return -1;
+      else if(a.renderPriority > b.renderPriority) return 1;
       return 0;
     });
   }

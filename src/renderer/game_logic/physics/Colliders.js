@@ -1,4 +1,5 @@
 
+import { Box } from "../game_objects/GameObjects";
 import { Vector2 } from "./Physics";
 export class Collider{
   constructor(gameObject){
@@ -61,22 +62,47 @@ export class Collider{
     return null;
   }
 
-  static overlapBoxAndCircle(box, circle){
-    var collider1, collider2;
+  static overlapBoxAndCircle(gameObject1, gameObject2){
 
-    collider1 = box.collider;
-    collider2 = circle.collider;
+    var boxCollider, circleCollider;
 
-    var distanceBetweenColliders = Collider.distanceBetweenColliders(collider1, collider2);
+    var box, circle;
+    if(gameObject1 instanceof Box){
+      box = gameObject1;
+      circle = gameObject2;
+    }
+    else{
+      box = gameObject2;
+      circle = gameObject1;
+    }
 
-    if(distanceBetweenColliders <= (collider1.halfWidth + collider2.radius) || distanceBetweenColliders <= (collider1.halfHeight + collider2.radius) || distanceBetweenColliders <= collider1.diagnal){
-      var positionA = collider1.position;
-      var positionB = collider2.position;
+
+
+
+
+
+    boxCollider = box.collider;
+    circleCollider = circle.collider;
+
+    var distanceBetweenColliders = Collider.distanceBetweenColliders(boxCollider, circleCollider);
+
+
+
+    var boxPos = box.getPosition();
+    var circlePos = circle.getPosition();
+
+    var xDistance = Math.abs(boxPos.x - circlePos.x);
+    var yDistance = Math.abs(boxPos.y - circlePos.y);
+
+
+    if(xDistance <= (boxCollider.halfWidth + circleCollider.radius) && yDistance <= (boxCollider.halfHeight + circleCollider.radius) && distanceBetweenColliders <= (circleCollider.radius + boxCollider.diagnal)){
+      var positionA = boxCollider.position;
+      var positionB = circleCollider.position;
 
       var direction = positionA.subtract(positionB);
 
       var midPoint = direction.multiply((0.5));
-      return new Collision(box, circle, midPoint);
+      return new Collision(gameObject1, gameObject2, midPoint);
     }
     return null;
   }
@@ -101,10 +127,10 @@ export class BoxCollider extends Collider{
   updatePosition(position){
     super.updatePosition(position);
     this.boundary = {
-      topLeft: new Vector2(position.x - this.halfWidth, position.y - this.halfWidth),
-      bottomLeft: new Vector2(position.x - this.halfWidth, position.y + this.halfWidth),
-      topRight: new Vector2(position.x + this.halfWidth, position.y - this.halfWidth),
-      bottomRight: new Vector2(position.x + this.halfWidth, position.y + this.halfWidth),
+      topLeft: new Vector2(position.x - this.halfWidth, position.y - this.halfHeight),
+      bottomLeft: new Vector2(position.x - this.halfWidth, position.y + this.halfHeight),
+      topRight: new Vector2(position.x + this.halfWidth, position.y - this.halfHeight),
+      bottomRight: new Vector2(position.x + this.halfWidth, position.y + this.halfHeight),
     }
 
   }
@@ -153,19 +179,10 @@ export class CircleCollider extends Collider{
   overlap(gameObject){
     var collider = gameObject.getCollider();
     var collision = null;
-    var colliderType = typeof(collider);
 
-    //var colliderBoundary = gameObject;
-
-    var colliderRadius = gameObject.radius;
-    var colliderPosition = gameObject.transform.position;
-
-    //TODO add checks for geometry type
-
-    var distanceBetweenColliders = this.position.distance(colliderPosition);
 
     if(collider instanceof BoxCollider){
-      collision = Collider.overlapBoxAndCircle(gameObject, this.gameObject);
+      collision = Collider.overlapBoxAndCircle(this.gameObject, gameObject);
     }
     else if(collider instanceof CircleCollider){
 

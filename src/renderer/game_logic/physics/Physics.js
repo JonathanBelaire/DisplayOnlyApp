@@ -76,7 +76,7 @@ export class PhysicsEngine {
     this.collisions = [];
     this.gravity = 90;
     this.simulationSpeed = 1;
-    this.impulseModifier = 50;
+    this.impulseModifier = 17*6;
     this.raycastCircle = new Circle(
       {
         color: "black",
@@ -103,12 +103,15 @@ export class PhysicsEngine {
     this.detectCollisions();
 
     this.gameObjects.forEach((go) =>{
+
+
       if(go.gravityEnabled){
 
         self.applyGravity(go);
       }
 
       if(go.physicsEnabled){
+        go.applyForce(self);
 
         go.physicsUpdate(self);
       }
@@ -177,18 +180,22 @@ export class PhysicsEngine {
             var gameObject1 = this.gameObjects[i];
             var gameObject2 = this.gameObjects[j];
 
-            var collision = gameObject1.collide(gameObject2);
-            if(collision != null){
-              this.collisions.push(collision);
+            if(gameObject1.collisionsEnabled && gameObject2.collisionsEnabled){
+              var collision = gameObject1.collide(gameObject2);
+              if(collision != null){
+                this.collisions.push(collision);
+              }
             }
           }
         }
       }
     }
 
-    this.gameObjects.forEach((go) => {
-      go.detectCollisions(self);
-    })
+    // this.gameObjects.forEach((go) => {
+    //   if(go.collisionsEnabled){
+    //     go.detectCollisions(self);
+    //   }
+    // })
   }
 
   hasCollisionOccurred(){

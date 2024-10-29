@@ -4,6 +4,10 @@ export class BaseState{
   constructor(props){
   }
 
+  initialize(gameObject){
+
+  }
+
   //returns next state
   update(gameObject){
     return this;
@@ -74,13 +78,20 @@ export class StateMachine {
   nextState = null;
   constructor(props){
     this.currentState = props.startingState;
-    this.nextState = null;
+    this.nextState = props.startingState;
   }
 
+
+
   update(obj){
-    if(this.currentState != null){
-      this.nextState = this.currentState.update(obj);
+    if(this.currentState != null && this.nextState != null){
+      if(this.currentState != this.nextState){
+        this.nextState.initialize(obj);
+      }
+      this.currentState = this.nextState;
+
+      this.nextState = this.currentState.update(obj)
+
     }
-    this.currentState = this.nextState;
   }
 }
