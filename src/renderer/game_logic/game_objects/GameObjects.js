@@ -1,7 +1,7 @@
 import { EventListener } from "../events/EventListener";
 import { StateMachine, GameStates, StateEnum, States } from "../states/States";
 import { PhysicsEngine, Vector2 } from "../physics/Physics";
-import { Collider, CircleCollider } from "../physics/Colliders";
+import { Collider, CircleCollider, BoxCollider } from "../physics/Colliders";
 
 export class GameObject{
 
@@ -9,6 +9,7 @@ export class GameObject{
 
   mass = 1;
   appliedForce = new Vector2();
+  appliedImpulse = new Vector2();
   active = true;
   renderPriority;
   bounce;
@@ -34,6 +35,7 @@ export class GameObject{
 
   inputListener;
   velocityChange = new Vector2(0,0);
+  ignoreBoundaries = false;
 
   constructor(props){
     var self = this;
@@ -63,7 +65,7 @@ export class GameObject{
   }
 
   addImpulse(vector){
-    this.velocity = vector;
+    this.appliedImpulse = this.appliedImpulse.add(vector);
   }
 
   addForce(vector){
@@ -73,17 +75,20 @@ export class GameObject{
     this.appliedForce = this.appliedForce.add(vector);
   }
 
+  apply
+
   applyForce(physicsEngine){
     let vX = this.velocity.x;
     let vY = this.velocity.y;
 
-    vX = vX + this.appliedForce.x * physicsEngine.deltaTime;
-    vY = vY + this.appliedForce.y * physicsEngine.deltaTime ;
+    vX = vX + this.appliedForce.x * physicsEngine.deltaTime + this.appliedImpulse.x * physicsEngine.deltaTime * physicsEngine.impulseModifier;
+    vY = vY + this.appliedForce.y * physicsEngine.deltaTime + this.appliedImpulse.y * physicsEngine.deltaTime * physicsEngine.impulseModifier;
 
     this.velocity = new Vector2(vX, vY);
     this.velocity = this.velocity.add(this.velocityChange.multiply(2));
 
     this.appliedForce = new Vector2();
+    this.appliedImpulse = new Vector2();
     this.velocityChange = new Vector2();
   }
 
@@ -148,7 +153,10 @@ export class GameObject{
 
   physicsUpdate(physicsEngine){
     this.applyForce(physicsEngine);
-    this.checkForBoundaries(physicsEngine);
+    if(!this.ignoreBoundaries){
+
+      this.checkForBoundaries(physicsEngine);
+    }
 
     var positionX, positionY;
     if(this.lockX){
@@ -265,6 +273,15 @@ export class Circle extends GameObject{
       ctx.stroke();
       ctx.fill();
     }
+  }
+}
+
+export class Box extends GameObject{
+  constructor(params) {
+    super(params);
+    this.collider = new BoxCollider(this, params.width, params.height);
+    this.width = params.width;
+    this.height = params.height;
   }
 }
 

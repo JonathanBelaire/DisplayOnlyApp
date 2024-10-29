@@ -76,6 +76,7 @@ export class PhysicsEngine {
     this.collisions = [];
     this.gravity = 90;
     this.simulationSpeed = 1;
+    this.impulseModifier = 50;
     this.raycastCircle = new Circle(
       {
         color: "black",
@@ -188,6 +189,10 @@ export class PhysicsEngine {
     this.gameObjects.forEach((go) => {
       go.detectCollisions(self);
     })
+  }
+
+  hasCollisionOccurred(){
+    return this.collisions.length > 0;
   }
 
   getCollisionsForGameObject(gameObject){

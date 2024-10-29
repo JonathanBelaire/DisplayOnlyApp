@@ -1,8 +1,8 @@
 import { Vector2 } from "../../physics/Physics";
 import { HelperFunctions } from "../../utility/HelperFunctions";
-import { GameObject } from "../GameObjects";
+import { Box, GameObject } from "../GameObjects";
 
-export class FlappyObstacle extends GameObject{
+export class FlappyObstacle extends Box{
   constructor(params) {
     super(params);
 
@@ -11,15 +11,26 @@ export class FlappyObstacle extends GameObject{
     this.canvasHeight = params.canvasHeight;
     this.verticalSpacing = params.verticalSpacing;
     this.gravityEnabled = false;
-    this.physicsEnabled = false;
+    this.physicsEnabled = true;
     this.active = true;
     this.renderPriority = 1;
     this.color = HelperFunctions.getRandomColor();
     this.strokeColor = HelperFunctions.getRandomColor();
+    this.ignoreBoundaries = true;
+    this.velocity = params.velocity;
 
 
     this.lockY = true;
 
+  }
+
+  detectCollisions(physicsEngine){
+
+  }
+
+  physicsUpdate(physicsEngine){
+    super.physicsUpdate(physicsEngine);
+    console.log(this.velocity);
   }
 
   render(ctx){

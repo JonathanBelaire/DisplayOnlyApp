@@ -77,6 +77,8 @@ export class GameOverState extends BaseState{
   update(gameManager){
     super.update(gameManager);
 
+    console.log("GAME OVER");
+
     //gameManager.renderObstacles();
 
     if(gameManager.playerTapped){

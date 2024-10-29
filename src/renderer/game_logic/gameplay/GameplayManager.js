@@ -42,7 +42,7 @@ export class FlappyOnly extends GameplayManager{
     verticalSpacing: 200,
     horizontalSpacing: 500,
     obstacleWidth: 70,
-    obstacleSpeed : 100,
+    obstacleSpeed : 100.0,
     verticalPadding: 50
   }
 
@@ -73,11 +73,12 @@ export class FlappyOnly extends GameplayManager{
   }
 
   update(){
+    super.update(this.renderContext);
     this.playerTapped = this.gameEngine.clicked;
+    this.playerCollided = this.gameEngine.physicsEngine.hasCollisionOccurred();
     this.stateMachine.update(this);
 
 
-    super.update(this.renderContext);
   }
 
   refreshObstacles(){
@@ -103,6 +104,7 @@ export class FlappyOnly extends GameplayManager{
           position: position,
           width: this.gameSettings.obstacleWidth,
           canvasWidth:this.width,
+          velocity: new Vector2(-this.gameSettings.obstacleSpeed, 0.0),
           canvasHeight: this.height,
           verticalSpacing: this.gameSettings.verticalSpacing
 
@@ -118,14 +120,14 @@ export class FlappyOnly extends GameplayManager{
   }
 
   getRandomHeight(){
-    return (Math.random() * (this.height -this.gameSettings.verticalPadding)) +  this.gameSettings.verticalPadding;
+    return (Math.random() * (this.height -this.gameSettings.verticalPadding - this.gameSettings.verticalSpacing)) +  this.gameSettings.verticalPadding + this.gameSettings.verticalSpacing;
   }
 
   updateObstacles(){
     this.obstacles.forEach((o) => {
-      var pos = o.getPosition();
-      var newPos = new Vector2(pos.x - (this.gameSettings.obstacleSpeed * this.gameEngine.deltaTime()), pos.y);
-      o.setPosition(newPos);
+      // var pos = o.getPosition();
+      // var newPos = new Vector2(pos.x - (this.gameSettings.obstacleSpeed * this.gameEngine.deltaTime()), pos.y);
+      // o.setPosition(newPos);
     });
   }
 
