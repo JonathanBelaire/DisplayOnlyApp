@@ -48,7 +48,7 @@ export class FlappyOnly extends GameplayManager{
     horizontalSpacing: 500,
     obstacleWidth: 70,
     obstacleSpeed : 70.0,
-    verticalPadding: 100
+    verticalPadding: 40
   }
 
 
@@ -82,7 +82,7 @@ export class FlappyOnly extends GameplayManager{
       return o.gameObject2 instanceof FlappyObstacle;
     });
 
-    var playerCollided = collisions.length > 0;
+    var playerCollided = collisions.length > 0 || this.player.hitFloor;
 
     this.playerCollided = playerCollided;
     if(!playerCollided){
@@ -109,11 +109,11 @@ export class FlappyOnly extends GameplayManager{
   generateNewObstacle(centerPosition){
     var offset =  (this.gameSettings.verticalSpacing * 0.5);
 
-    var height1 = centerPosition.y - offset;
-    var height2 =  (this.canvasHeight - centerPosition.y) - offset;
+    var height1 = centerPosition.y - offset - this.gameSettings.verticalPadding;
+    var height2 =  (this.canvasHeight - height1) - offset -this.gameSettings.verticalPadding;
 
     var pos1 = new Vector2(centerPosition.x, height1 * 0.5);
-    var pos2 = new Vector2(centerPosition.x, centerPosition.y + offset + height2 * 0.5);
+    var pos2 = new Vector2(centerPosition.x, height1 + offset*2 - this.gameSettings.verticalPadding + height2 * 0.5);
 
     var obstacle1 = new FlappyObstacle({
       position: pos1,
@@ -221,6 +221,7 @@ export class FlappyOnly extends GameplayManager{
       o.velocity = new Vector2();
 
       o.color = "black";
+      o.strokeColor = "white";
     });
 
     this.player.color = "red";

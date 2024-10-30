@@ -184,9 +184,11 @@ export class GameObject{
   }
 
   checkForBoundaries(physicsEngine){
+    var collided = false;
     if((this.transform.position.x > physicsEngine.boundary.right && this.velocity.x > 0) || (this.transform.position.x < physicsEngine.boundary.left && this.velocity.x < 0 )){
       //this.velocity.x = -this.velocity.x;
       this.addVelocityChange(new Vector2(-this.velocity.x * this.bounce, 0));
+      collided = true;
 
     }
 
@@ -194,7 +196,10 @@ export class GameObject{
     if(this.transform.position.y >= physicsEngine.boundary.bottom && this.velocity.y > 0){
       //this.velocity.y = -this.velocity.y;
       this.addVelocityChange(new Vector2(0, -this.velocity.y * this.bounce));
+      collided = true;
     }
+
+    return collided;
 
   }
 
@@ -249,17 +254,24 @@ export class Circle extends GameObject{
   }
 
   checkForBoundaries(physicsEngine){
+    var collided = false;
+
     if(this.transform.position.x + this.radius > physicsEngine.boundary.right && this.velocity.x > 0 ){
       this.velocity.x = -this.velocity.x;
+      collided = true;
 
     }
     if(this.transform.position.x - this.radius < physicsEngine.boundary.left && this.velocity.x < 0){
       this.velocity.x = -this.velocity.x;
+      collided = true;
     }
 
     if(this.transform.position.y + this.radius >= physicsEngine.boundary.bottom && this.velocity.y > 0){
       this.velocity.y = -this.velocity.y;
+      collided = true;
     }
+
+    return collided;
 
   }
 

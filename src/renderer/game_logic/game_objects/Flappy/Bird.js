@@ -8,6 +8,7 @@ export class Bird extends Ball{
     super(params);
     this.color = "#AAAAAA";
     this.strokeColor = "#FFFFFF";
+    this.hitFloor = false;
 
     this.jumpSpeed = params.jumpSpeed;
     this.active = true;
@@ -26,6 +27,11 @@ export class Bird extends Ball{
 
   update(){
     super.update();
+  }
+
+  checkForBoundaries(physicsEngines){
+    this.hitFloor = super.checkForBoundaries(physicsEngines);
+
   }
 
 }

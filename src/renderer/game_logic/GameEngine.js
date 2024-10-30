@@ -10,6 +10,7 @@ export class GameEngine{
     this.physicsObjects = [];
 
     this.uiElements = [];
+    this.backgroundElements = [];
 
     this.context = context;
 
@@ -66,6 +67,10 @@ export class GameEngine{
   beforeRender(context){
     //TODO call listeners to render background
 
+    this.backgroundElements.forEach((b) => {
+      b.render(context);
+    })
+
   }
 
   afterRender(context){
@@ -98,9 +103,6 @@ export class GameEngine{
   }
 
   render(context){
-    context.clearRect(0,0,this.width, this.height);
-    context.fillStyle = "#00002F";
-    context.fillRect(0,0,this.width, this.height);
     this.gameObjects.forEach((go) => {
       go.render(context);
     });
@@ -122,6 +124,18 @@ export class GameEngine{
       this.sortGameObjects();
       this.physicsEngine.addGameObject(obj);
     }
+  }
+
+  addBackgroundElement(el){
+    this.backgroundElements.push(el);
+  }
+
+
+
+  removeBackgroundElement(el){
+    var index = this.backgroundElements.indexOf(el);
+
+    this.backgroundElements.splice(index,1);
   }
 
   addGameObjects(objs = []){

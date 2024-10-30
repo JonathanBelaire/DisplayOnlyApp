@@ -2,6 +2,8 @@
 
 export class BaseState{
   constructor(props){
+    this.frame = 0;
+    this.firstFrame = true;
   }
 
   initialize(gameObject){
@@ -10,10 +12,16 @@ export class BaseState{
 
   //returns next state
   update(gameObject){
+
+    if(this.frame > 0){
+      this.firstFrame = false;
+    }
+    this.frame++;
     return this;
   }
 
   dispose(gameObject){
+    this.frame = 0;
 
   }
 
