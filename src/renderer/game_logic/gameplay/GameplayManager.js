@@ -14,7 +14,7 @@ export class GameplayManager{
   stateMachine = null;
   renderContext = null;
   constructor(config) {
-    this.gameEngine = new GameEngine(config.width, config.height);
+    this.gameEngine = new GameEngine(config.width, config.height, config.renderContext);
 
     this.renderContext = config.renderContext;
     this.width = config.width;
@@ -23,10 +23,11 @@ export class GameplayManager{
 
   setRenderContext(context){
     this.renderContext = context;
+    this.gameEngine.context = context;
   }
 
   update(context){
-    this.gameEngine.update(context);
+    this.gameEngine.update();
   }
 }
 
@@ -38,14 +39,16 @@ export class FlappyOnly extends GameplayManager{
   playerTapped = false;
   playerCollided = false;
   obstacleVelocity = new Vector2();
+  uiElements = [];
+  score = 0;
 
   gameSettings = {
     jumpSpeed: 120,
-    verticalSpacing: 220,
+    verticalSpacing: 250,
     horizontalSpacing: 500,
     obstacleWidth: 70,
     obstacleSpeed : 70.0,
-    verticalPadding: 50
+    verticalPadding: 100
   }
 
 
@@ -64,16 +67,13 @@ export class FlappyOnly extends GameplayManager{
 
     this.canvasHeight = config.height;
     this.canvasWidth = config.width;
-    this.gameEngine.setGravity(350);
+    this.gameEngine.setGravity(300);
     this.gameEngine.setPhysicsSpeed(5);
 
     this.obstacleVelocity = new Vector2(-this.gameSettings.obstacleSpeed, 0);
 
     this.reset();
 
-
-
-    //this.refreshObstacles();
   }
 
   update(){
@@ -85,9 +85,25 @@ export class FlappyOnly extends GameplayManager{
     var playerCollided = collisions.length > 0;
 
     this.playerCollided = playerCollided;
-    this.stateMachine.update(this);
-    super.update(this.renderContext);
+    if(!playerCollided){
+      this.checkForScoreUpdate();
+    }
 
+    this.stateMachine.update(this);
+    super.update();
+
+  }
+
+  checkForScoreUpdate(){
+    var self = this;
+    for(var i = 0; i < this.obstacles.length; i += 2)
+    {
+      var o = this.obstacles[i];
+      if(!o.playerPassed && o.getPosition().x < this.player.getPosition().x){
+        self.score++;
+        o.playerPassed = true;
+      }
+    }
   }
 
   generateNewObstacle(centerPosition){
@@ -228,12 +244,13 @@ export class FlappyOnly extends GameplayManager{
     if(this.player != null){
       this.gameEngine.removeGameObject(this.player);
     }
+    this.score = 0;
     this.obstacles = [];
     var player  = new Bird({
       gravityEnabled: false,
       physicsEnabled: false,
       renderPriority: 10,
-      radius: 50,
+      radius: 35,
       collisionsEnabled: true,
       position: new Vector2(this.width*0.5, this.height*0.5),
       velocity: new Vector2(),

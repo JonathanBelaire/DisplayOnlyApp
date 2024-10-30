@@ -1,4 +1,5 @@
 import { Vector2 } from "../../physics/Physics";
+import { UIText } from "../../rendering/UI";
 import { HelperFunctions } from "../../utility/HelperFunctions";
 import { BaseState } from "../States";
 
@@ -6,6 +7,7 @@ export class PregameState extends BaseState{
   secondsBeforeStart = 2;
   startTime;
   firstFrame = true;
+  readyText;
   constructor(params) {
     super(params);
 
@@ -16,6 +18,14 @@ export class PregameState extends BaseState{
 
   initialize(gameManager){
     super.initialize(gameManager);
+    this.readyText = new UIText({
+      text: "Ready?",
+      font: "48px serif",
+      strokeColor: "white",
+      fillColor: "white",
+      screenPosition: new Vector2(gameManager.width*0.5, gameManager.height* 0.5 - 100)
+    })
+    gameManager.gameEngine.addUIElement(this.readyText);
     gameManager.reset();
 
   }
@@ -31,10 +41,17 @@ export class PregameState extends BaseState{
     return this;
 
   }
+
+  dispose(gameManager){
+    gameManager.gameEngine.removeUIElement(this.readyText);
+  }
+
+
 }
 
 export class PlayingState extends BaseState{
   frame = 0;
+  scoreText;
   constructor(params) {
     super(params);
 
@@ -42,6 +59,16 @@ export class PlayingState extends BaseState{
 
   initialize(gameManager){
     super.initialize(gameManager);
+
+    this.scoreText = new UIText({
+      text: "0",
+      font: "bold 48px serif",
+      strokeColor: "black",
+      fillColor: "white",
+      screenPosition: new Vector2(gameManager.width*0.5, 30)
+    })
+
+    gameManager.gameEngine.addUIElement(this.scoreText);
 
     gameManager.onStart();
   }
@@ -63,13 +90,23 @@ export class PlayingState extends BaseState{
       gameManager.player.color = HelperFunctions.getRandomColor();
     }
 
+    this.scoreText.text = gameManager.score + "";
+
+
     this.frame++;
 
     return this;
   }
+
+  dispose(gameManager){
+    super.dispose(gameManager);
+    gameManager.gameEngine.removeUIElement(this.scoreText);
+  }
 }
 
 export class GameOverState extends BaseState{
+  gameOverText;
+  restartText;
   constructor(params) {
     super(params);
   }
@@ -77,7 +114,25 @@ export class GameOverState extends BaseState{
   initialize(gameManager){
     super.initialize(gameManager);
 
-    console.log("GAME OVER");
+    this.gameOverText = new UIText({
+      text: "GAME OVER",
+      font: "bold 68px serif",
+      strokeColor: "red",
+      fillColor: "black",
+      screenPosition: new Vector2(gameManager.width*0.5, gameManager.height*0.5 - 50)
+    });
+
+    this.restartText = new UIText({
+      text: "Tap to try again!",
+      font: "30px serif",
+      strokeColor: "red",
+      fillColor: "black",
+      screenPosition: new Vector2(gameManager.width*0.5, gameManager.height*0.5 + 50 )
+    });
+
+    gameManager.gameEngine.addUIElement(this.gameOverText);
+    gameManager.gameEngine.addUIElement(this.restartText);
+
     gameManager.onGameOver();
 
   }
@@ -85,12 +140,19 @@ export class GameOverState extends BaseState{
   update(gameManager){
     super.update(gameManager);
 
-
+    this.restartText.strokeColor = HelperFunctions.getRandomColor();
+    this.gameOverText.strokeColor = HelperFunctions.getRandomColor();
 
     if(gameManager.playerTapped){
       return new PregameState();
     }
 
     return this;
+  }
+
+  dispose(gameManager){
+    super.dispose(gameManager);
+    gameManager.gameEngine.removeUIElement(this.gameOverText);
+    gameManager.gameEngine.removeUIElement(this.restartText);
   }
 }

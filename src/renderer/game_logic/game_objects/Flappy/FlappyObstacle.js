@@ -7,6 +7,7 @@ export class FlappyObstacle extends Box{
     super(params);
 
     this.active = true;
+    this.playerPassed = false;
     this.renderPriority = 2;
     this.color = HelperFunctions.getRandomColor();
     this.strokeColor = HelperFunctions.getRandomColor();

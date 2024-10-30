@@ -2,12 +2,17 @@ import { GameObject } from "./game_objects/GameObjects";
 import { PhysicsEngine, Vector2 } from "./physics/Physics";
 
 export class GameEngine{
-  uiDrawer = null;
-  constructor(width, height){
+
+  constructor(width, height, context){
     this.gameObjects = [];
     this.width = width;
     this.height = height;
     this.physicsObjects = [];
+
+    this.uiElements = [];
+
+    this.context = context;
+
     this.physicsEngine = new PhysicsEngine({
       width,
       height
@@ -18,14 +23,15 @@ export class GameEngine{
 
   }
 
-  update(context){
+  update(){
     var self = this;
 
-    this.processInput(context.canvas);
+    this.processInput(this.context.canvas);
     this.physicsUpdate();
     this.frameUpdate();
-    this.render(context);
-    this.afterRender();
+    this.beforeRender(this.context);
+    this.render(this.context);
+    this.afterRender(this.context);
 
   }
 
@@ -39,9 +45,6 @@ export class GameEngine{
       }, false);
       this.initialized = true;
     }
-
-
-
   }
 
 
@@ -60,16 +63,25 @@ export class GameEngine{
 
 
 
-  beforeRender(){
+  beforeRender(context){
+    //TODO call listeners to render background
 
   }
 
-  afterRender(){
+  afterRender(context){
+    this.uiElements.forEach((ui) => {
+      ui.draw(context);
+    })
+
     if(this.clickPosition != null){
       this.physicsEngine.raycast(this.clickPosition);
       this.clickPosition = null;
       this.clicked = false;
     }
+
+    //TODO render ui
+
+
 
   }
 
@@ -92,6 +104,16 @@ export class GameEngine{
     this.gameObjects.forEach((go) => {
       go.render(context);
     });
+  }
+
+  addUIElement(el){
+    this.uiElements.push(el);
+  }
+
+  removeUIElement(el){
+    var index = this.uiElements.indexOf(el);
+
+    this.uiElements.splice(index,1);
   }
 
   addGameObject(obj){
